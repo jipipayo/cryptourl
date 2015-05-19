@@ -1,2 +1,2 @@
 # cryptourl
-a php module that allows to encapsulate and encrypt (reversible) a php object in a url
+a php simple class that allows to encapsulate (serialize and encrypt/decrypt a php object) in a url
