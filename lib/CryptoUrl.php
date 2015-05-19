@@ -11,11 +11,11 @@ class CryptoUrl
     public function __construct()
     {
         $this->secret_iv = mcrypt_create_iv($this->secret_iv);
-        $this->encrypt_method = "MCRYPT_RIJNDAEL_256";
+        $this->cipher = "MCRYPT_RIJNDAEL_256";
     }
 
 
-    public function encrypt($encrypt_method=$this->encrypt_method, $secret_key=$this->secret_key ,$array)
+    public function encrypt($cipher=$this->cipher, $secret_key=$this->secret_key ,$array)
     {
         $obj = new stdClass();
         //TODO iterate recursively, by now just iterate one level, not multidimensional array
@@ -31,12 +31,12 @@ class CryptoUrl
     }
 
 
-    public function decrypt($encrypt_method=$this->encrypt_method, $secret_key=$this->secret_key, $string )
+    public function decrypt($method=$this->method, $secret_key=$this->secret_key, $string )
     {
         $objEncrypted = $this->_urlsafe_b64decode($string);
 
         if (!empty($objEncrypted)) {
-            $objSerialized = mcrypt_decrypt( $method=$this->method, $secret_key=$this->secret_key, $objEncrypted);
+            $objSerialized = mcrypt_decrypt( $method, $secret_key, $objEncrypted);
             $obj = unserialize($objSerialized);
         }
 
