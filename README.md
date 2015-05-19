@@ -1,2 +1,2 @@
 # cryptourl
-a php simple class that allows to encapsulate an array (object serializez and encrypt/decrypt) to/from an url
+a php simple php class that allows to serialize and encrypt/decrypt a php array to be used in a url
