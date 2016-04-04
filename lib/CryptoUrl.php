@@ -3,40 +3,64 @@
 class CryptoUrl
 {
 
-    private $encrypt_method;
-    private $secret_key = "This is my secret key";
-    private $secret_iv = "This is my secret iv";
+	public function __construct(){
+		if(!extension_loaded('mcrypt')){
+			throw New Exception('extension mcrypt not found. http://php.net/manual/es/mcrypt.installation.php');
+		}
+	}
+
+	private function _getMcryptListModes(){
+		return mcrypt_list_modes();//array
+	}
+
+	private function _getMcryptListAlgorithms(){
+		return mcrypt_list_algorithms();//array
+	}
+
+	private function _checkDefaultsEncrypt( $vectorStr, $keyStr, $dataArr ){
+		var_dump($vectorStr, $keyStr, $dataArr);
+		if( !is_string($vectorStr) || !is_string($keyStr) || !is_array($dataArr) ){
+			throw new Exception('please, set the $vector, $key and $dataArr values (strings)');
+		}
+
+	}
 
 
-    public function __construct()
-    {
-        $this->secret_iv = mcrypt_create_iv($this->secret_iv);
-        $this->cipher = "MCRYPT_RIJNDAEL_256";
-    }
-
-
-    public function encrypt($cipher=$this->cipher, $secret_key=$this->secret_key ,$array)
-    {
+    public function encrypt( $vectorStr, $keyStr,  $dataArr)
+	{
+		$this->_checkDefaultsEncrypt($vectorStr, $keyStr, $dataArr);
         $obj = new stdClass();
-        //TODO iterate recursively, by now just iterate one level, not multidimensional array
-        foreach ($array as $key => $value) {
+        foreach ($dataArr as $key => $value) {
             $obj->$key = $value;
         }
 
         $objSerialized = serialize($obj);
-        $objEncrypted = mcrypt_encrypt( $encrypt_method, $secret_key, $objSerialized);
+        $encrypt = new Encrypt(
+            array(
+                'vector' => $vectorStr,
+                'key' => $keyStr
+            )
+        );
+
+        $objEncrypted = $encrypt->filter($objSerialized);
         $string = $this->_urlsafe_b64encode($objEncrypted);
 
         return $string;
     }
 
 
-    public function decrypt($method=$this->method, $secret_key=$this->secret_key, $string )
+    public function decrypt($string)
     {
+        $encrypt = new Decrypt(
+            array(
+                'vector' => $this->vector,
+                'key' => $this->key
+            )
+        );
         $objEncrypted = $this->_urlsafe_b64decode($string);
 
         if (!empty($objEncrypted)) {
-            $objSerialized = mcrypt_decrypt( $method, $secret_key, $objEncrypted);
+            $objSerialized = $encrypt->filter($objEncrypted);
             $obj = unserialize($objSerialized);
         }
 
@@ -66,6 +90,8 @@ class CryptoUrl
         }
         return base64_decode($data);
     }
+
+
 
 }
 
